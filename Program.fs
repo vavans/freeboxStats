@@ -35,16 +35,23 @@ let initDevice =
 
 type UnknownState with
     member this.Auth =
-       let rep = FreeBoxAPI.sendAuthorizeRequest "" "" "" ""
-       ()
+        let rep = FreeBoxAPI.sendAuthorizeRequest "" "" "" ""
+        if rep.success then
+            printfn "Authorisation en cours... Validez physiquement sur la freebox"
+            printfn "Token reçu: %s" rep.result.app_token
+            printfn "Appuyer sur entrée après avoir validé..."
+            Console.ReadLine() |> ignore
+            Some rep.result.app_token
+        else
+            None
 
 
 let startDevice =
     let d = initDevice
     match d with
     | Unknown state -> state.Auth
-    | Known state   -> ()
-    | _ -> ()
+    | Known state   -> None
+    | _ -> None
 
 let openSession (state : KnownState) =
     let k = state.Key
